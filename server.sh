@@ -1,4 +1,4 @@
 #!/bin/bash
 #
 
-go run .
+go run ./cmd/web
