@@ -1,7 +1,52 @@
 package main
 
-import "fmt"
+import (
+	"log"
+	"net/http"
+)
+
+// Define a home handler function
+// Send "Hello from snippets" as the response
+func home(w http.ResponseWriter, r *http.Request) {
+	// Check if the current request URL path that exactly matches "/".
+	if r.URL.Path != "/" {
+		http.NotFound(w, r)
+		return
+	}
+
+	w.Write([]byte("Hello from Snippets"))
+}
+
+// Add a snippetView handler function
+func snippetView(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte("Display a specific snippet..."))
+}
+
+// Add a snippetCreate handler function.
+func snippetCreate(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "POST" {
+		w.WriteHeader(405)
+		w.Write([]byte("Method Not Allowed"))
+		return
+	}
+
+	w.Write([]byte("Create a new snippet..."))
+}
 
 func main() {
-	fmt.Println("Hello, world!")
+	// Use the http.NewServeMux() function to initialize a new servemux, then
+	// register the home function as the handler for the "/" URL pattern
+	// fmt.Println("Hello, world!")
+	mux := http.NewServeMux()
+	mux.HandleFunc("/", home)
+	mux.HandleFunc("/snippet/view", snippetView)
+	mux.HandleFunc("/snippet/create", snippetCreate)
+
+	// Print a log a message to say that the server is starting.
+	log.Print("starting server on :4000")
+
+	// Use the http.ListenAndServe() function to start a new web server. We pass in
+	// two parameters: the TCP network address
+	err := http.ListenAndServe(":4000", mux)
+	log.Fatal(err)
 }
