@@ -1,0 +1,20 @@
+/* Base link styles */
+a {
+    text-decoration: none; /* Removes the default underline */
+    color: #000; /* Set the link color */
+    display: inline-block; /* Allows the width to fit the content */
+    overflow: hidden; /* Ensures the underline does not extend outside the link */
+    position: relative; /* For positioning the underline */
+}
+
+/* Class for the underline effect */
+.underline-effect::after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 2px; /* Thickness of the underline */
+    bottom: 0;
+    left: -100%; /* Start from the left, hidden initially */
+    background-color: deeppink; /* Color of the underline */
+    transition: left 0.5s ease; /* Animates the left property */
+}

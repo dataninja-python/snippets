@@ -3,41 +3,42 @@ package main
 import (
 	"fmt"
 	"html/template"
-	"log"
 	"net/http"
 	"strconv"
 )
 
 // Define a home handler function
-// Send "Hello from snippets" as the response
-func home(w http.ResponseWriter, r *http.Request) {
+// Further define it as a method against *application type from main
+func (app *application) home(w http.ResponseWriter, r *http.Request) {
 	// Check if the current request URL path that exactly matches "/".
 	if r.URL.Path != "/" {
 		http.NotFound(w, r)
 		return
 	}
-	// Initialize a slice containin the paths to the two files
+	// Initialize a slice containing the paths to the two files
 	files := []string{
 		"./ui/html/pages/base.tmpl.html",
+		"./ui/html/partials/nav.tmpl.html",
 		"./ui/html/pages/home.tmpl.html",
 	}
 	// use template home page
 	ts, err := template.ParseFiles(files...)
 	if err != nil {
-		log.Print(err.Error())
+		app.logger.Error(err.Error(), "method", r.Method, "uri", r.URL.RequestURI())
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
 	err = ts.ExecuteTemplate(w, "base", nil)
+
 	if err != nil {
-		log.Print(err.Error())
+		app.logger.Error(err.Error(), "method", r.Method, "uri", r.URL.RequestURI())
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 	}
 	// w.Write([]byte("Hello from Snippets"))
 }
 
 // Add a snippetView handler function
-func snippetView(w http.ResponseWriter, r *http.Request) {
+func (app *application) snippetView(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(r.URL.Query().Get("id"))
 	if err != nil || id < 1 {
 		http.NotFound(w, r)
@@ -48,7 +49,7 @@ func snippetView(w http.ResponseWriter, r *http.Request) {
 }
 
 // Add a snippetCreate handler function.
-func snippetCreate(w http.ResponseWriter, r *http.Request) {
+func (app *application) snippetCreate(w http.ResponseWriter, r *http.Request) {
 	/*if r.Method != "POST" {
 		w.Header().Set("Allow", "POST")
 		//w.WriteHeader(405)
