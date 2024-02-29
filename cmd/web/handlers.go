@@ -26,31 +26,6 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 	for _, snippet := range snippets {
 		fmt.Fprintf(w, "%+v\n", snippet)
 	}
-
-	// Initialize a slice containing the paths to the two files
-	/*
-		files := []string{
-			"./ui/html/pages/base.tmpl.html",
-			"./ui/html/partials/nav.tmpl.html",
-			"./ui/html/pages/home.tmpl.html",
-		}
-	*/
-
-	// use template home page
-	/*
-			ts, err := template.ParseFiles(files...)
-			if err != nil {
-				app.serverError(w, r, err) // server error helper
-				return
-			}
-			err = ts.ExecuteTemplate(w, "base", nil)
-
-		if err != nil {
-			app.serverError(w, r, err) // server error helper
-			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-		}
-	*/
-	// w.Write([]byte("Hello from Snippets"))
 }
 
 // Add a snippetView handler function

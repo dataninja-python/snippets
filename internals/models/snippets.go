@@ -70,7 +70,7 @@ func (m *SnippetModel) Get(id int) (Snippet, error) {
 func (m *SnippetModel) Latest() ([]Snippet, error) {
 
 	// Write the SQL statement we want to execute.
-	stmt := `SELECT id, title, content, created, expires FROM snipppetcol WHERE expires > UTC_TIMESTAMP() ORDER BY id DESC LIMIT 10`
+	stmt := `SELECT id, title, content, created, expires FROM snippetcol WHERE expires > UTC_TIMESTAMP() ORDER BY id DESC LIMIT 10`
 
 	// Use Query() method on the connection pool to execute our SQL statement
 	rows, err := m.DB.Query(stmt)
