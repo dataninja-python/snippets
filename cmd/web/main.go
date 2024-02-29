@@ -1,48 +1,69 @@
 package main
 
 import (
+	"database/sql"
 	"flag"
+	_ "github.com/go-sql-driver/mysql"
 	"log/slog"
 	"net/http"
 	"os"
+	"snippetbox.ajigherighe.net/internals/models"
 )
 
 // create an application wide struct for logging
 type application struct {
-	logger *slog.Logger
+	logger   *slog.Logger
+	snippets *models.SnippetModel
 }
 
 func main() {
 	// add better configuration management
 	addr := flag.String("addr", ":4000", "HttP network address")
+	// add database command line flag
+	dsn := flag.String("dsn", "web:z@rchN3rd2024@/snippets?parseTime=true", "MySQL data source name")
 	flag.Parse()
 
 	// add new logging functionality
 	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
 
-	// initialize application instance of our struct with the dependencies
-	app := &application{
-		logger: logger,
+	// database function used to clean up code
+	db, err := openDB(*dsn)
+	if err != nil {
+		logger.Error(err.Error())
+		os.Exit(1)
 	}
 
-	// Use the http.NewServeMux() function to initialize a new servemux, then
-	// register the home function as the handler for the "/" URL pattern
-	// fmt.Println("Hello, world!")
-	mux := http.NewServeMux()
-	// serve files from the static directory
-	fileServer := http.FileServer(http.Dir("./ui/static/"))
-	mux.Handle("/static/", http.StripPrefix("/static", fileServer))
-	// handle routes
-	mux.HandleFunc("/", app.home)
-	mux.HandleFunc("/snippet/view", app.snippetView)
-	mux.HandleFunc("/snippet/create", app.snippetCreate)
+	// defer closing the database to ensure it closes when main exits
+	defer db.Close()
+
+	// initialize application instance of our struct with the dependencies
+	app := &application{
+		logger:   logger,
+		snippets: &models.SnippetModel{DB: db},
+	}
 
 	// Print a log a message to say that the server is starting.
 	logger.Info("starting server", "addr", *addr)
 
 	// Use the http.ListenAndServe() function to start a new web server. We pass in
 	// two parameters: the TCP network address
-	err := http.ListenAndServe(*addr, mux)
+	err = http.ListenAndServe(*addr, app.routes())
 	logger.Error(err.Error())
 	os.Exit(1)
+}
+
+// OpenDB() function that wraps sql.Open functionality
+func openDB(dsn string) (*sql.DB, error) {
+	db, err := sql.Open("mysql", dsn)
+	if err != nil {
+		return nil, err
+	}
+
+	err = db.Ping()
+	if err != nil {
+		db.Close()
+		return nil, err
+	}
+
+	return db, nil
 }
