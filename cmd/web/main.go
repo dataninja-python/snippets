@@ -7,7 +7,7 @@ import (
 	"log/slog"
 	"net/http"
 	"os"
-	"snippetbox.ajigherighe.net/internals/models"
+	"snippetbox.ajigherighe.net/internal/models"
 )
 
 // create an application wide struct for logging
@@ -18,7 +18,7 @@ type application struct {
 
 func main() {
 	// add better configuration management
-	addr := flag.String("addr", ":4000", "HttP network address")
+	addr := flag.String("addr", ":4000", "Http network address")
 	// add database command line flag
 	dsn := flag.String("dsn", "web:z@rchN3rd2024@/snippets?parseTime=true", "MySQL data source name")
 	flag.Parse()
