@@ -3,7 +3,6 @@ package main
 import (
 	"errors"
 	"fmt"
-	"html/template"
 	"net/http"
 	"snippetbox.ajigherighe.net/internal/models"
 	"strconv"
@@ -24,33 +23,39 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	files := []string{
-		"./ui/html/base.tmpl.html",
-		"./ui/html/partials/nav.tmpl.html",
-		"./ui/html/pages/home.tmpl.html",
-	}
-
-	ts, err := template.ParseFiles(files...)
-	if err != nil {
-		app.serverError(w, r, err)
-		return
-	}
-
-	// Create a templateData instance
-	data := templateData{
+	// Use the render helper function.
+	app.render(w, r, http.StatusOK, "home.tmpl.html", templateData{
 		Snippets: snippets,
-	}
+	})
 
-	// Pass in the templateData struct when executing template
-	err = ts.ExecuteTemplate(w, "base", data)
-	if err != nil {
-		app.serverError(w, r, err)
-		return
-	}
+	/*
+		files := []string{
+			"./ui/html/base.tmpl.html",
+			"./ui/html/partials/nav.tmpl.html",
+			"./ui/html/pages/home.tmpl.html",
+		}
 
-	/*for _, snippet := range snippets {
-		fmt.Fprintf(w, "%+v\n", snippet)
-	}*/
+		ts, err := template.ParseFiles(files...)
+		if err != nil {
+			app.serverError(w, r, err)
+			return
+		}
+
+		// Create a templateData instance
+		data := templateData{
+			Snippets: snippets,
+		}
+
+		// Pass in the templateData struct when executing template
+		err = ts.ExecuteTemplate(w, "base", data)
+		if err != nil {
+			app.serverError(w, r, err)
+			return
+		}
+
+		for _, snippet := range snippets {
+			fmt.Fprintf(w, "%+v\n", snippet)
+		}*/
 }
 
 // Add a snippetView handler function
@@ -72,30 +77,36 @@ func (app *application) snippetView(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Initialize path to view template
-	files := []string{
-		"./ui/html/base.tmpl.html",
-		"./ui/html/partials/nav.tmpl.html",
-		"./ui/html/pages/view.tmpl.html",
-	}
-
-	// Parse template files
-	ts, err := template.ParseFiles(files...)
-	if err != nil {
-		app.serverError(w, r, err)
-		return
-	}
-
-	data := templateData{
+	// User the new render helper.
+	app.render(w, r, http.StatusOK, "view.tmpl.html", templateData{
 		Snippet: snippet,
-	}
+	})
+	/*
+		// Initialize path to view template
+		files := []string{
+			"./ui/html/base.tmpl.html",
+			"./ui/html/partials/nav.tmpl.html",
+			"./ui/html/pages/view.tmpl.html",
+		}
 
-	err = ts.ExecuteTemplate(w, "base", data)
-	if err != nil {
-		app.serverError(w, r, err)
-	}
+		// Parse template files
+		ts, err := template.ParseFiles(files...)
+		if err != nil {
+			app.serverError(w, r, err)
+			return
+		}
 
-	fmt.Fprintf(w, "%+v", snippet)
+		data := templateData{
+			Snippet: snippet,
+		}
+
+		err = ts.ExecuteTemplate(w, "base", data)
+		if err != nil {
+			app.serverError(w, r, err)
+		}
+
+		fmt.Fprintf(w, "%+v", snippet)
+	*/
 }
 
 // Add a snippetCreate handler function.

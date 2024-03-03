@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"flag"
 	_ "github.com/go-sql-driver/mysql"
+	"html/template"
 	"log/slog"
 	"net/http"
 	"os"
@@ -12,8 +13,9 @@ import (
 
 // create an application wide struct for logging
 type application struct {
-	logger   *slog.Logger
-	snippets *models.SnippetModel
+	logger        *slog.Logger
+	snippets      *models.SnippetModel
+	templateCache map[string]*template.Template
 }
 
 func main() {
@@ -32,19 +34,25 @@ func main() {
 		logger.Error(err.Error())
 		os.Exit(1)
 	}
-
 	// defer closing the database to ensure it closes when main exits
 	defer db.Close()
 
+	// Initialize a new template cache
+	templateCache, err := newTemplateCache()
+	if err != nil {
+		logger.Error(err.Error())
+		os.Exit(1)
+	}
+
 	// initialize application instance of our struct with the dependencies
 	app := &application{
-		logger:   logger,
-		snippets: &models.SnippetModel{DB: db},
+		logger:        logger,
+		snippets:      &models.SnippetModel{DB: db},
+		templateCache: templateCache,
 	}
 
 	// Print a log a message to say that the server is starting.
 	logger.Info("starting server", "addr", *addr)
-
 	// Use the http.ListenAndServe() function to start a new web server. We pass in
 	// two parameters: the TCP network address
 	err = http.ListenAndServe(*addr, app.routes())
