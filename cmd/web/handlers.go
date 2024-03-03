@@ -23,6 +23,10 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Call newTemplateData to add the current year to data
+	data := app.newTemplateData(r)
+	data.Snippets = snippets
+
 	// Use the render helper function.
 	app.render(w, r, http.StatusOK, "home.tmpl.html", templateData{
 		Snippets: snippets,
@@ -76,6 +80,10 @@ func (app *application) snippetView(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	}
+
+	// Repeat process from home here
+	data := app.newTemplateData(r)
+	data.Snippet = snippet
 
 	// User the new render helper.
 	app.render(w, r, http.StatusOK, "view.tmpl.html", templateData{

@@ -6,9 +6,15 @@ import (
 	"snippetbox.ajigherighe.net/internal/models"
 )
 
+// The template path constants.
+const baseTemplatePath string = "./ui/html/base.tmpl.html"
+const allPartialsPath string = "./ui/html/partials/*.tmpl.html"
+const allPagesPath string = "./ui/html/pages/*.tmpl.html"
+
 type templateData struct {
-	Snippet  models.Snippet
-	Snippets []models.Snippet
+	CurrentYear int
+	Snippet     models.Snippet
+	Snippets    []models.Snippet
 }
 
 func newTemplateCache() (map[string]*template.Template, error) {
@@ -17,7 +23,7 @@ func newTemplateCache() (map[string]*template.Template, error) {
 
 	// Use filepath.Glob() function to get slice of all filepaths that match the pattern
 	// "./ui/html/pages/*.tmpl.html".
-	pages, err := filepath.Glob("./ui/html/pages/*.tmpl.html")
+	pages, err := filepath.Glob(allPagesPath)
 	if err != nil {
 		return nil, err
 	}
@@ -28,13 +34,13 @@ func newTemplateCache() (map[string]*template.Template, error) {
 		name := filepath.Base(page)
 
 		// Parse the base template file into a template set.
-		ts, err := template.ParseFiles("./ui/base.tmpl.html")
+		ts, err := template.ParseFiles(baseTemplatePath)
 		if err != nil {
 			return nil, err
 		}
 
 		// Call ParseGlob() *on this template set* to add any partials.
-		ts, err = ts.ParseGlob("./ui/html/partials/*tmpl.html")
+		ts, err = ts.ParseGlob(allPartialsPath)
 		if err != nil {
 			return nil, err
 		}
