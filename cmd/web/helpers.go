@@ -70,7 +70,7 @@ func (app *application) render(w http.ResponseWriter, r *http.Request, status in
 func (app *application) newTemplateData(r *http.Request) templateData {
 	var year int
 	year = time.Now().Year()
-	fmt.Println("Year:", year)
+	// fmt.Println("Year:", year)
 	return templateData{
 		CurrentYear: year,
 	}

@@ -4,6 +4,7 @@ import (
 	"html/template"
 	"path/filepath"
 	"snippetbox.ajigherighe.net/internal/models"
+	"time"
 )
 
 // The template path constants.
@@ -15,6 +16,17 @@ type templateData struct {
 	CurrentYear int
 	Snippet     models.Snippet
 	Snippets    []models.Snippet
+}
+
+// humanDate returns a nicely formatted version of the time.Time object.
+func humanDate(t time.Time) string {
+	return t.Format("02 Jan 2006 at 15:04")
+}
+
+// Initialize a template.FuncMap object and store it in a global variable.
+// functions is a loop up string-key map for custom template functions
+var functions = template.FuncMap{
+	"humanDate": humanDate,
 }
 
 func newTemplateCache() (map[string]*template.Template, error) {
@@ -33,11 +45,21 @@ func newTemplateCache() (map[string]*template.Template, error) {
 		// extract the file name (home.tmpl.html) from the full path
 		name := filepath.Base(page)
 
-		// Parse the base template file into a template set.
-		ts, err := template.ParseFiles(baseTemplatePath)
+		// Register the template.FuncMap with the template set by creating an empty template set,
+		// then call ParseFiles() method. Start with tempalate.New() to create an empty template set, use
+		// the Funcs() method to register the template.FuncMap, and then proceed to parse as normal.
+		ts, err := template.New(name).Funcs(functions).ParseFiles(baseTemplatePath)
 		if err != nil {
 			return nil, err
 		}
+
+		/*
+			// Parse the base template file into a template set.
+			ts, err := template.ParseFiles(baseTemplatePath)
+			if err != nil {
+				return nil, err
+			}
+		*/
 
 		// Call ParseGlob() *on this template set* to add any partials.
 		ts, err = ts.ParseGlob(allPartialsPath)

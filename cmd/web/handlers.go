@@ -28,9 +28,7 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 	data.Snippets = snippets
 
 	// Use the render helper function.
-	app.render(w, r, http.StatusOK, "home.tmpl.html", templateData{
-		Snippets: snippets,
-	})
+	app.render(w, r, http.StatusOK, "home.tmpl.html", data)
 
 	/*
 		files := []string{
@@ -86,9 +84,7 @@ func (app *application) snippetView(w http.ResponseWriter, r *http.Request) {
 	data.Snippet = snippet
 
 	// User the new render helper.
-	app.render(w, r, http.StatusOK, "view.tmpl.html", templateData{
-		Snippet: snippet,
-	})
+	app.render(w, r, http.StatusOK, "view.tmpl.html", data)
 	/*
 		// Initialize path to view template
 		files := []string{
