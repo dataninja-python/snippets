@@ -12,10 +12,12 @@ const baseTemplatePath string = "./ui/html/base.tmpl.html"
 const allPartialsPath string = "./ui/html/partials/*.tmpl.html"
 const allPagesPath string = "./ui/html/pages/*.tmpl.html"
 
+// Add a form field of type any to deal with form data
 type templateData struct {
 	CurrentYear int
 	Snippet     models.Snippet
 	Snippets    []models.Snippet
+	Form        any
 }
 
 // humanDate returns a nicely formatted version of the time.Time object.
