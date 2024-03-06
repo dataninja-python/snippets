@@ -11,10 +11,10 @@ import (
 )
 
 type snippetCreateForm struct {
-	Title   string
-	Content string
-	Expires int
-	validator.Validator
+	Title               string `form:"title"`
+	Content             string `form:"content"`
+	Expires             int    `form:"expires"`
+	validator.Validator `form:"-"`
 }
 
 // Define a home handler function
@@ -102,34 +102,27 @@ func (app *application) snippetCreatePost(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	// Use r.PostForm.Get to grab desired information from r.PostForm map
-	// title := r.PostForm.Get("title")
-	// content := r.PostForm.Get("content")
+	// Declare a new empty instance of the snippetCreateForm struct.
+	var form snippetCreateForm
 
-	// r.PostForm returns strings but expiration data are numbers. So, must convert.
-	expires, err := strconv.Atoi(r.PostForm.Get("expires"))
+	// Call the Decode() method of the form decoder, passing in the current request and *a pointer* to our
+	// snippetCreateForm struct. Fills our struct with the relevant valus from the HTML form or 404 error.
+	err = app.formDecoder.Decode(&form, r.PostForm)
 	if err != nil {
 		app.clientError(w, http.StatusBadRequest)
 		return
 	}
 
-	form := snippetCreateForm{
-		Title:   r.PostForm.Get("title"),
-		Content: r.PostForm.Get("content"),
-		Expires: expires,
-	}
-
-	// Because the Validator struct is embedded by the snippetCreateForm struct, we can call CheckField() directly on
-	// it to execute our validation checks. CheckField() will add the provided key and error message to the FieldErrors
-	// map if the check does not evaluate to true. For example, in the first line here we "check that the form.Title
-	// field is not blank." In the second, we "check that the form.Title field has a maximum character length of 100"
-	// and so on.
+	// Then validate and use the data as normal...
 	form.CheckField(validator.NotBlank(form.Title), "title", "This field cannot be blank")
 	form.CheckField(validator.MaxChars(form.Title, 100), "title", "This field cannot be more than "+
 		"100 characters long")
 	form.CheckField(validator.NotBlank(form.Content), "content", "This field cannot be blank")
 	form.CheckField(validator.PermittedValue(form.Expires, 1, 7, 365), "expires",
 		"This field must equal 1, 7, or 365")
+	// Use r.PostForm.Get to grab desired information from r.PostForm map
+	// title := r.PostForm.Get("title")
+	// content := r.PostForm.Get("content")
 
 	// Use the Valid() method to see if any of the checks failed. If they did, then re-render the template passing
 	// in the form in the same way as before.
