@@ -70,9 +70,17 @@ func (app *application) snippetView(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Use PopString() method to retrieve the "flash" key inserted in the routes.go file.
+	// It also deletes the key and value from the session data to ensure it is a one-time fetch.
+	// An empty string is returned if there's no matching key.
+	flash := app.sessionManager.PopString(r.Context(), "flash")
+
 	// Repeat process from home here
 	data := app.newTemplateData(r)
 	data.Snippet = snippet
+
+	// Pass the flash message to the template
+	data.Flash = flash
 
 	// User the new render helper.
 	app.render(w, r, http.StatusOK, "view.tmpl.html", data)
@@ -94,20 +102,12 @@ func (app *application) snippetCreate(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) snippetCreatePost(w http.ResponseWriter, r *http.Request) {
-	// Call r.ParseForm() to add any data in POST request body to the r.PostForm map. This works for PUT and PATCH
-	// requests.
-	err := r.ParseForm()
-	if err != nil {
-		app.clientError(w, http.StatusBadRequest)
-		return
-	}
-
 	// Declare a new empty instance of the snippetCreateForm struct.
 	var form snippetCreateForm
 
 	// Call the Decode() method of the form decoder, passing in the current request and *a pointer* to our
 	// snippetCreateForm struct. Fills our struct with the relevant valus from the HTML form or 404 error.
-	err = app.formDecoder.Decode(&form, r.PostForm)
+	err := app.decodePostForm(r, &form)
 	if err != nil {
 		app.clientError(w, http.StatusBadRequest)
 		return
@@ -138,6 +138,9 @@ func (app *application) snippetCreatePost(w http.ResponseWriter, r *http.Request
 		app.serverError(w, r, err)
 		return
 	}
+
+	// Use Put() method to add string "Snippet successfully created! and corresponding key "flash" to session data.
+	app.sessionManager.Put(r.Context(), "flash", "Snippet successfully created!")
 
 	http.Redirect(w, r, fmt.Sprintf("/snippet/view/%d", id), http.StatusSeeOther)
 }

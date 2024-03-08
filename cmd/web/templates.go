@@ -18,6 +18,7 @@ type templateData struct {
 	Snippet     models.Snippet
 	Snippets    []models.Snippet
 	Form        any
+	Flash       string
 }
 
 // humanDate returns a nicely formatted version of the time.Time object.

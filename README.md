@@ -33,3 +33,4 @@ The final app allows people to create, edit, and share small chunks of text.
 - [ ] create initial directory structure
 - [ ] commit to branch
 - [ ] merge into main branch
+- [ ] Create a TUI using Unicode (https://home.unicode.org/)
