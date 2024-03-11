@@ -26,7 +26,6 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	*/
-
 	snippets, err := app.snippets.Latest()
 	if err != nil {
 		app.serverError(w, r, err)
@@ -43,13 +42,6 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 
 // Add a snippetView handler function
 func (app *application) snippetView(w http.ResponseWriter, r *http.Request) {
-	/*id, err := strconv.Atoi(r.URL.Query().Get("id"))
-	if err != nil || id < 1 {
-		app.notFound(w) // not found helper function
-		return
-	}
-	*/
-
 	// When httprouter is parsing a request, the values of any named parameters will be stored
 	params := httprouter.ParamsFromContext(r.Context())
 
