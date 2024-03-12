@@ -52,20 +52,17 @@ func (app *application) render(w http.ResponseWriter, r *http.Request, status in
 		app.serverError(w, r, err)
 		return
 	}
+
+	// Deliberate error: a set Content-Length header with an invalid(non-integer) value.
+	// Test for how error is handled.
+	// w.Header().Set("Content-Length", "this isn't an integer!")
+
 	// If the template is written to the buffer without an error we can proceed.
 	// Write out the provided HTTP status code ('200 OK', '400 Bad Request' etc).
 	w.WriteHeader(status)
 
 	// Use the result from the buffer to the http.ResponseWriter
 	buf.WriteTo(w)
-	/*
-		// Execute the template set and write the response body. Again, if there is any error we call the serverError()
-		// helper.
-		err := ts.ExecuteTemplate(w, "base", data)
-		if err != nil {
-			app.serverError(w, r, err)
-		}
-	*/
 }
 
 // Create a newTemplateData() helper, which returns a pointer to a templateData
@@ -75,6 +72,7 @@ func (app *application) newTemplateData(r *http.Request) templateData {
 	// fmt.Println("Year:", year)
 	return templateData{
 		CurrentYear: year,
+		Flash:       app.sessionManager.PopString(r.Context(), "flash"),
 	}
 }
 

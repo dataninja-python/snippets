@@ -62,17 +62,9 @@ func (app *application) snippetView(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Use PopString() method to retrieve the "flash" key inserted in the routes.go file.
-	// It also deletes the key and value from the session data to ensure it is a one-time fetch.
-	// An empty string is returned if there's no matching key.
-	flash := app.sessionManager.PopString(r.Context(), "flash")
-
 	// Repeat process from home here
 	data := app.newTemplateData(r)
 	data.Snippet = snippet
-
-	// Pass the flash message to the template
-	data.Flash = flash
 
 	// User the new render helper.
 	app.render(w, r, http.StatusOK, "view.tmpl.html", data)

@@ -68,11 +68,21 @@ func main() {
 		sessionManager: sessionManager,
 	}
 
+	// Initialize and use http.Server struct using same network address and routes as before.
+	srv := &http.Server{
+		Addr:    *addr,
+		Handler: app.routes(),
+		// Create a *log.Logger from our structured logger handler, which writes log entries at Error level,
+		// and assign it to the ErrorLog field.
+		ErrorLog: slog.NewLogLogger(logger.Handler(), slog.LevelError),
+	}
+
 	// Print a log a message to say that the server is starting.
-	logger.Info("starting server", "addr", *addr)
+	logger.Info("starting server", "addr", srv.Addr)
 	// Use the http.ListenAndServe() function to start a new web server. We pass in
 	// two parameters: the TCP network address
-	err = http.ListenAndServe(*addr, app.routes())
+	// simplify the original function using the new http.Server struct
+	err = srv.ListenAndServe()
 	logger.Error(err.Error())
 	os.Exit(1)
 }
