@@ -58,6 +58,11 @@ func main() {
 	sessionManager.Store = mysqlstore.New(db)
 	sessionManager.Lifetime = 12 * time.Hour
 
+	// Make sure the Secure attribute is et on our session cookies.
+	// Setting means cookie will be sent by a user's web browser when a HTTPs connection is used...
+	// ...and won't be sent over an unsecure HTTP connection
+	sessionManager.Cookie.Secure = true
+
 	// And add the session manager to our application dependencies
 	// initialize application instance of our struct with the dependencies
 	app := &application{
@@ -82,7 +87,7 @@ func main() {
 	// Use the http.ListenAndServe() function to start a new web server. We pass in
 	// two parameters: the TCP network address
 	// simplify the original function using the new http.Server struct
-	err = srv.ListenAndServe()
+	err = srv.ListenAndServeTLS("./tls/cert.pem", "./tls/key.pem")
 	logger.Error(err.Error())
 	os.Exit(1)
 }
