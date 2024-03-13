@@ -1,6 +1,7 @@
 package main
 
 import (
+	"crypto/tls"
 	"database/sql"
 	"flag"
 	"github.com/alexedwards/scs/mysqlstore"
@@ -19,6 +20,7 @@ import (
 type application struct {
 	logger         *slog.Logger
 	snippets       *models.SnippetModel
+	users          *models.UserModel
 	templateCache  map[string]*template.Template
 	formDecoder    *form.Decoder
 	sessionManager *scs.SessionManager
@@ -68,9 +70,17 @@ func main() {
 	app := &application{
 		logger:         logger,
 		snippets:       &models.SnippetModel{DB: db},
+		users:          &models.UserModel{DB: db},
 		templateCache:  templateCache,
 		formDecoder:    formDecoder,
 		sessionManager: sessionManager,
+	}
+
+	tlsConfig := &tls.Config{
+		CurvePreferences: []tls.CurveID{
+			tls.X25519,
+			tls.CurveP256,
+		},
 	}
 
 	// Initialize and use http.Server struct using same network address and routes as before.
@@ -79,7 +89,11 @@ func main() {
 		Handler: app.routes(),
 		// Create a *log.Logger from our structured logger handler, which writes log entries at Error level,
 		// and assign it to the ErrorLog field.
-		ErrorLog: slog.NewLogLogger(logger.Handler(), slog.LevelError),
+		ErrorLog:     slog.NewLogLogger(logger.Handler(), slog.LevelError),
+		TLSConfig:    tlsConfig,
+		IdleTimeout:  time.Minute,
+		ReadTimeout:  5 * time.Second,
+		WriteTimeout: 10 * time.Second,
 	}
 
 	// Print a log a message to say that the server is starting.
